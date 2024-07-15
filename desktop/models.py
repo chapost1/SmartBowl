@@ -2,6 +2,11 @@ from dataclasses import dataclass
 from enum import Enum
 
 
+class RefillState(Enum):
+    OFF = 0
+    ON = 1
+
+
 class OutEventTypes(str, Enum):
     REFILL = "REFILL"
     NEW_TARGET_WEIGHT = "NEW_TARGET_WEIGHT"

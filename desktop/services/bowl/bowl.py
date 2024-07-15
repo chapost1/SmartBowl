@@ -1,4 +1,11 @@
-from models import IncomingEvent, Alert, InEventTypes, OutEventTypes, OutEvent
+from models import (
+    IncomingEvent,
+    Alert,
+    InEventTypes,
+    OutEventTypes,
+    OutEvent,
+    RefillState,
+)
 from typing import Protocol, Callable
 from circuikit.protocols import SendSmiInputFn
 import logging
@@ -13,7 +20,7 @@ class BowlGui(Protocol):
 
     def set_target_weight(self, weight: float): ...
 
-    def set_refill_state(self, state: int): ...
+    def set_refill_state(self, state: RefillState): ...
 
     def set_refill_callback(self, callback: Callable[[], None]): ...
 
@@ -68,7 +75,7 @@ class Bowl:
                 else:
                     self.gui.set_target_weight(weight=event.value)
             case InEventTypes.REFILL_STATE_UPDATE:
-                self.gui.set_refill_state(state=int(event.value))
+                self.gui.set_refill_state(state=RefillState(value=int(event.value)))
             case InEventTypes.EMPTY_BOWL_ALERT:
                 self.alert_fn(alert=Alert(message="Bowl is empty :("))
             case InEventTypes.GENERAL_ERROR_ALERT:

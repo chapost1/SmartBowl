@@ -4,6 +4,7 @@ from tkinter import messagebox
 from typing import Callable
 import random
 import math
+from models import RefillState
 
 # Set up the constants
 SCREEN_WIDTH = 600
@@ -49,7 +50,7 @@ class BowlGUI:
         self.capacity = 1  # Default capacity
         self.current_weight = 0
         self.target_weight = 0
-        self.refill_state = 0
+        self.refill_state = RefillState.OFF
         self.last_visual_bowl_weight = 0
 
         self.init_ui()
@@ -94,7 +95,7 @@ class BowlGUI:
         self.target_weight = weight
         self.root.after(ms=0, func=self.update_target_weight_text)
 
-    def set_refill_state(self, state: int):
+    def set_refill_state(self, state: RefillState):
         self.refill_state = state
         self.root.after(ms=0, func=self.update_refill_text)
 
@@ -115,7 +116,10 @@ class BowlGUI:
         self.update_refill_text()
 
     def update_refill_text(self):
-        color = "green" if self.refill_state else "blue"
+        if self.refill_state == RefillState.OFF:
+            color = "blue"
+        elif self.refill_state == RefillState.ON:
+            color = "green"
         self.canvas.delete("refill_text")
         self.canvas.create_text(
             CENTER_X, 100, fill=TEXT_COLOR, text="Refill", tags="refill_text"
