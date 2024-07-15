@@ -36,6 +36,11 @@
 #define START_MARKER '<'
 #define END_MARKER '>'
 
+#define REFILL_STATE_OFF 0
+#define REFILL_STATE_ON 1
+
+#define TARGET_WEIGHT_MIN 1
+
 const char * OUTPUT_TYPE_BOWL_CAPACITY = "BOWL_CAPACITY";
 const char * OUTPUT_TYPE_BOWL_WEIGHT = "BOWL_WEIGHT";
 const char * OUTPUT_TYPE_TARGET_WEIGHT_UPDATE = "TARGET_WEIGHT_UPDATE";
@@ -248,7 +253,7 @@ void set_refill_value(uint16_t new_value) {
 }
 
 void on_refill_command() {
-  set_refill_value(1);
+  set_refill_value(REFILL_STATE_ON);
 }
 
 void on_new_target_weight_command(uint16_t value) {
@@ -256,9 +261,9 @@ void on_new_target_weight_command(uint16_t value) {
     char error[60];
     sprintf(error, "target weight exceeded maximum value - %d", (int) FORCE_MAX);
     update(OUTPUT_TYPE_TARGET_WEIGHT_UPDATE, error, NULL);
-  } else if (value < 1) {
+  } else if (value < TARGET_WEIGHT_MIN) {
     char error[60];
-    sprintf(error, "target weight is below minimum value - %d", 1);
+    sprintf(error, "target weight is below minimum value - %d", TARGET_WEIGHT_MIN);
     update(OUTPUT_TYPE_TARGET_WEIGHT_UPDATE, error, NULL);
   } else {
     user_target_weight = value;
@@ -320,21 +325,27 @@ void dispenser_loop() {
     user_notified_for_empty_bowl = 0;
   }
 
-  if (refill == 0) {
-    if (weight < 1) {
+  switch(refill) {
+    case REFILL_STATE_OFF: {
+      if (weight > 0) {
+        break;
+      }
       if (user_notified_for_empty_bowl == 0) {
         // notify user
         empty_bowl_alert();
         // avoid throttle user until refill starts
         user_notified_for_empty_bowl = 1;
       }
+      break;
     }
-  } else if (refill == 1) {
-    if (weight < user_target_weight) {
-      rotate_food_blocker(HIGH_SERVO_DEG);
-    } else {
-      rotate_food_blocker(LOW_SERVO_DEG);
-      set_refill_value(0);
+    case REFILL_STATE_ON: {
+      if (weight < user_target_weight) {
+        rotate_food_blocker(HIGH_SERVO_DEG);
+      } else {
+        rotate_food_blocker(LOW_SERVO_DEG);
+        set_refill_value(REFILL_STATE_OFF);
+      }
+      break;
     }
   }
 }
@@ -349,5 +360,5 @@ void handle_input() {
 void loop() {
   handle_input();
   dispenser_loop();
-  delay(150);
+  delay(300);
 }
