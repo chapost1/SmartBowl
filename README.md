@@ -25,7 +25,9 @@ The implementation involves several steps:
 2. **Logic**: The core logic involves reading the weight sensor to ensure the correct amount of food is dispensed. The system uses event-driven programming to handle updates and commands from the user app.
 3. **User App**: The app is a desktop application written in Python. It receives periodic updates from the Arduino (currently sampling it through the serial monitor), displaying the current food level and allowing the user to set the target weight or trigger a refill.
 
-The primary challenge was to transmit data reliably from the Arduino to the app, which was resolved by writing a custom Python package to manage this communication. Both the Arduino and Python software are event-driven, updating specific topics to keep the flow simple and efficient.
+The primary challenge was to transmit data reliably from the Arduino to the app and vice-versa, which was resolved by writing a custom Python package to manage this communication. Both the Arduino and Python software are event-driven, updating specific topics to keep the flow simple and efficient.
+
+<img src="./assets/simulation.png" alt="Simulation" width="800"/>
 
 ## Testing and Results
 
